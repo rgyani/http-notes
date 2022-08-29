@@ -17,15 +17,27 @@ Instead, it contains links to additional resources needed by the requested page.
 The client discovers that the full rendering of the page requires these additional resources from the server only after it downloads the page.  
 Because of this, the client will have to make additional requests to retrieve these resources. 
 
-In HTTP/1.0, the client had to break and remake the TCP connection with every new request, a costly affair in terms of both time and resources.  
-In HTTP/1.1, the client uses multiple TCP connections to lessen the effect of HOL blocking.   
-In HTTP/2, the client establishes a single connection object between the two machines, called Binary Framing Layer.   
+* In HTTP/1.0, the client had to break and remake the TCP connection with every new request, a costly affair in terms of both time and resources.  
+* In HTTP/1.1, the client uses multiple TCP connections to lessen the effect of HOL blocking.   
+* In HTTP/2, the client establishes a single connection object between the two machines, called Binary Framing Layer.   
 Within this connection there are multiple streams of data. Each stream consists of multiple messages in the familiar request/response format. Finally, each of these messages split into smaller units called frames
+* HTTP/3 uses QUIC, a multiplexed transport protocol built on UDP instead of TCP
 
+#### HTTP v2.0
 
 From a technical point of view, one of the most significant features that distinguishes HTTP/1.1 and HTTP/2 is the binary framing layer, which can be thought of as a part of the application layer in the internet protocol stack.   
 As opposed to HTTP/1.1, which keeps all requests and responses in plain text format, HTTP/2 uses the binary framing layer to encapsulate all messages in binary format, while still maintaining HTTP semantics, such as verbs, methods, and headers.   
 An application level API would still create messages in the conventional HTTP formats, but the underlying layer would then convert these messages into binary. This ensures that web applications created before HTTP/2 can continue functioning as normal when interacting with the new protocol.
+
+#### HTTP v3.0
+HTTP/3 uses similar semantics compared to earlier revisions of the protocol, including the same request methods, status codes, and message fields, but encodes them and maintains session state differently.   
+
+However, partially due to the protocol's adoption of QUIC, HTTP/3 has lower latency and loads more quickly in real-world usage when compared with previous versions: in some cases over 3× faster than with HTTP/1.1 (which remains the only HTTP version deployed by many websites).
+
+![img](imgs/2022-cloudfront-quic-1.jpg)
+
+On 15 Aug, 20222, AWS Cloudfront announced support for Http/3 
+
 
 
 ### Cross-Origin Resource Sharing (CORS)
