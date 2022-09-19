@@ -38,7 +38,7 @@ However, partially due to the protocol's adoption of QUIC, HTTP/3 has lower late
 
 On 15 Aug, 20222, AWS Cloudfront announced support for Http/3 
 
-
+### [A much better explaination](https://www.linkedin.com/pulse/http3-over-quic-its-revolutionary-saurabh-pandey/)
 
 ### Cross-Origin Resource Sharing (CORS)
 Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allows a server to indicate any origins (domain, scheme, or port) other than its own from which a browser should permit loading resources.   
