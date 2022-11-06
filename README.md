@@ -73,8 +73,36 @@ xhr.send('<person><name>Arun</name></person>');
 ![img](imgs/preflight_correct.png)
 
 
+### CORS Headers
 
-### How does HTTPS work?
+When the browser makes a CORS request, it will send an **'Origin'** header, that states its protocol(scheme) and port number
+eg. Origin: https://domain-a.com
+
+#### Access-Control-Request-Method
+The Access-Control-Request-Method header notifies the server as part of a preflight request that when the actual request is sent, it will do so with a POST request method.  
+eg. Access-Control-Request-Method: POST
+
+#### Access-Control-Request-Headers
+The Access-Control-Request-Headers header notifies the server that when the actual request is sent, it will do so with X-PINGOTHER and Content-Type custom headers.
+
+Now the server has an opportunity to determine whether it can accept a request under these conditions.
+
+#### Access-Control-Allow-Origin
+The server responds with Access-Control-Allow-Origin: https://foo.example, restricting access to the requesting origin domain only. 
+
+#### Access-Control-Allow-Methods
+It also responds with Access-Control-Allow-Methods, which says that POST and GET are valid methods to query the resource in question (this header is similar to the Allow response header, but used strictly within the context of access control).
+
+#### Access-Control-Allow-Headers
+The server also sends Access-Control-Allow-Headers with a value of "X-PINGOTHER, Content-Type", confirming that these are permitted headers to be used with the actual request.   
+Like Access-Control-Allow-Methods, Access-Control-Allow-Headers is a comma-separated list of acceptable headers.
+
+### Access-Control-Max-Age
+Access-Control-Max-Age gives the value in seconds for how long the response to the preflight request can be cached without sending another preflight request. The default value is 5 seconds.
+
+
+
+# How does HTTPS work?
 
 Hypertext Transfer Protocol Secure (HTTPS) is an extension of the Hypertext Transfer Protocol (HTTP.)   
 HTTPS transmits encrypted data using Transport Layer Security (TLS.) If the data is hijacked online, all the hijacker gets is binary code. 
