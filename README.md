@@ -122,6 +122,13 @@ HTTPS transmits encrypted data using Transport Layer Security (TLS.) If the data
 2. Server resources: The asymmetric encryption adds quite a lot of mathematical overhead. It is not suitable for data transmissions in long sessions.
 
 
+| What is a DDoS attack? |
+|---|
+|The purpose of a DDoS attack is to disrupt the normal traffic of the victim servers through malicious requests. As a result, the servers are swamped with malicious requests and have no buffer to handle normal requests.|
+| **An example of a common DDoS attack is an SYN flood.**|
+| Normally the client and server establish a TCP connection via a 3-way handshake. As a result of an SYN flood attack, zombies (network of computers controller by attacker) send many SYN requests to the server, but they never return the TCP ACK to the server. |
+| This results in an exhaustion of resources on the victim server due to the accumulation of many half-open TCP connections.|
+
 
 ### Client Certificate vs Server Certificate
 
