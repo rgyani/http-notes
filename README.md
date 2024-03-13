@@ -139,7 +139,7 @@ Client certificate does not encrypt any data, it only serves as a more secure au
 ## How does one web server handle so many requests on the same port?
 The classic ‘forking’ design would have a single master process which BINDs to a port (80) and listens. When it gets a connection it calls the ‘fork()’ system call and the resulting child process reads the request and returns a response, then terminates. This is the oldest paradigm of network services in the *nix/BSD Socket API model. It works, but the child processes can be slow to get going. Fork is a low overhead call, but it still adds up when server loads start to build up.
 
-Apache introduced the ‘pre-forking’ pattern in the early 90’s. In this paradigm the child processes are forked at server startup after the BIND to port 80, so they each inherit a copy of the open socket, and they all listen on it. The advantage is that no work is done in the master, and the children are already up and running, so there’s less overhead. This pattern prevailed for a long time.
+**Apache** introduced the ‘pre-forking’ pattern in the early 90’s. In this paradigm the child processes are forked at server startup after the BIND to port 80, so they each inherit a copy of the open socket, and they all listen on it. The advantage is that no work is done in the master, and the children are already up and running, so there’s less overhead. This pattern prevailed for a long time.
 
 Next up was the multi-threaded model. This is basically not much different from the pre-forking model, except it uses threads instead of fork. So there is only one server process. The disadvantage is of course any leaks in that process (maybe caused by buggy plugins or whatever) will eventually kill the process.
 
@@ -151,11 +151,24 @@ The reactor model uses a SINGLE THREAD to handle all work!
 It listens, handles the request, and then listens for the next request. The trick is everything is non-blocking.  
 That is, say the request needs to read a file from disk, instead of making a blocking OS call to read(), which is the classic way to do things, instead a non-blocking call is made, which registers a callback. When the read finishes, a message is posted to a queue, telling the process to run the callback. Instead of blocking on LISTEN to the TCP port, the same non-blocking strategy is used. The main thread then simply waits on the queue, handling each task which comes in (which may initiate further tasks). No context switches happen at all, and virtually 100% of theoretical performance is achieved, all work is useful work.
 
-Nginx famously brought the reactor pattern to web servers, and it has reigned as the king of HTTPDs for a good while now due to its virtually unmatched efficiency. The only downside, technically, is that this one server process better not memory leak or crash, though even this can be handled by giving it a shepherd process which monitors it and makes sure it gets restarted if anything goes wrong, or after a certain number of requests are processed, etc.
+**Nginx** famously brought the reactor pattern to web servers, and it has reigned as the king of HTTPDs for a good while now due to its virtually unmatched efficiency. The only downside, technically, is that this one server process better not memory leak or crash, though even this can be handled by giving it a shepherd process which monitors it and makes sure it gets restarted if anything goes wrong, or after a certain number of requests are processed, etc.
 
-#### But still how does it scale
 
-The web server opens a single TCP port and listens on it.   
-When a connection comes in, the kernel creates a new socket and hands it to the server as a new file descriptor. The socket is unique to the connection; it has the server’s IP address and destination port (80 or 443) as well as the client’s IP address and source IP port. This allows multiple simultaneous requests from the same client since each request is associated with a different source port.
+### So how does it work
+The web server opens a single TCP port and listens on it. This port (0 to 65535, (with some reserved)) is a **Logical Port**.   
+Logical Port, unlike Physical ports such as USB ports, Serial Ports, Ethernet ports, support many-to-many connections
 
-The server sees multiple requests as multiple open file descriptors and does I/O on each one separately.
+* When we run a web server, it creates a socket (with listenfd socket file descriptor) to listen on a port and then waits for incoming connections.
+* when the server receives a connection request from a client, it creates another socket (clientfd) to handle the request.
+
+![](imgs/socket-server-side.jpg)
+
+* In case there are concurrent requests, and the server is capable of handling them, then the server will simply create a new socket (clientfd*) for each request:
+
+![](imgs/socket-server-side-concurrent.jpg)
+
+
+A socket file descriptor is an integer value and unique per socket. The operating system associates socket file descriptors with various values in the background, such as a combination of client IP and port, server IP and port, and communication protocol.   
+Now whenever the server wants to communicate with the client, it only needs to pass the socket file descriptor to the socket API, and then the OS will know which channel to use.   
+
+Hence, The server sees multiple requests as multiple open file descriptors and does I/O on each one separately.
