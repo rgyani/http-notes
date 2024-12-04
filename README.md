@@ -34,6 +34,21 @@ You can select any record to get all common DNS records for a domain from the fo
 - **SSHFP record**: It is also known as SSH Public Key Fingerprint. It has a resource record for publishing SSH public host key fingerprints in the DNS System to verify the host's authenticity.
 - **URI record**: It is also known as Uniform Resource Identifier. It can be used for publishing mappings from hostnames to URIs.
 
+#### CNAME vs ALIAS
+CNAME records differ from Alias records in resolving domain names to reach their destination. 
+
+Let’s say you configure a CNAME record pointing www.yourdomain.com to www.anotherdomain.com. 
+
+If someone enters www.yourdomain.com into their browser, the DNS server returns a response for www.anotherdomain.com. Their web browser then executes another DNS lookup for www.anotherdomain.com to get the IP address. 
+
+However, the process is different for Alias records. Instead of returning a response for www.anotherdomain.com, the authoritative DNS server performs the second resolution and returns only the IP address or A record. 
+
+- When you configure a CNAME record for a domain like blog.www.mywebsite.com, you can’t create any other records. Establishing another DNS record alongside a CNAME record can result in conflict, leading to erroneous results. However, this isn’t the case for Alias records, as they can coexist with other types of DNS records, such as NS records, TXT records, and SOA records in the DNS.
+
+- You can’t configure a CNAME record in the zone apex, so it’s impossible to use a CNAME record to point a root domain to another destination. But Alias records don’t have this restriction because, like A records, they return IP addresses.
+
+- But Alias Records Lose Geo-Targeting Data. Alias records may resolve a domain quicker and coexist with other DNS records but they have one drawback: They lose geo-targeting data. When a target domain name (like www.anotherdomain.com) issues queries for another domain (like www.yourdomain.com), the former’s authoritative server is responsible.
+
 
 ### HTTP versions
 The first response that a client receives on an HTTP GET request is often not the fully rendered page.  
