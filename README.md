@@ -11,6 +11,30 @@ A recursive DNS lookup asks multiple DNS servers around the Internet, which in t
 5. Server processes request and sends back a response
 6. Browser renders the content
 
+### How DNS Lookup Works
+DNS lookup is a process by which an IP address is returned for a domain name by a DNS server. The DNS lookup can also return all the records associated with a domain name such as IP, IPv6 address or MX record, etc.
+
+![alt text](imgs/dns-lookup.png)
+
+### List of DNS Records Types
+You can select any record to get all common DNS records for a domain from the following types of DNS records.
+
+- **A record**: Also known as **address record**. It points the domain name to an IPv4 address.
+- **AAAA record**: It maps the hostname to 128-bits IPv6 address (four times larger than IPv4 in size)
+- **CAA record**: Certification Authority Authorization record reflects the public policy regarding the domain's issuance of digital certificates. If no CAA record is present for your domain, any Certification Authority can issue an SSL certificate for your domain. However, by using this record, you can restrict which CA is authorized to issue your domain's digital credentials.
+- **CNAME record**: Canonical Name record creates an alias of one domain name. The aliased domain or sub-domain gets all the original Domain DNS records and commonly used to associate sub-domains with the existing main domain.
+- **DS record**: Delegation Signer record consists of the unique characters of your public key and its related metadata such as Key Tag, Algorithm, Digest Type, and cryptographic hash value called Digest.
+- **DNSKEY record**: It is also known as DNS Key record,containing public signing keys such as Key Signing Key (KSK) and Zone Signing Key (ZSK). The DS and DNSKEY records serve to validate the authenticity of DNS records returned by the DNS Server.
+- **MX record**: Mail Exchange records tell which mail exchange servers are responsible for routing the email to the correct destination or mail server.
+- **NS record**: Name Server record points to the name servers to manage and publish the domain's DNS records. These are the DNS servers that are authoritative to handle any query related to the domain.
+- **PTR record**: The Pointer recordpoints the IPv4 or IPv6 address to its machine's hostname. It provides a reverse DNS record or rDNS record by pointing an IP address to the server's hostname.
+- **SRV record**:Service record indicates which specific services the domain operates and port numbers. Some Internet protocols such as the Presence Protocol (XMPP), Extensible Messaging, and the Session Initiation Protocol (SIP) often require SRV records.
+- **SOA record**:The Start of Authority recordprovides essential information about the domain, such as identifying the master node of domain authoritative name server, an email of the domain administrator, the serial number of DNS zone, etc.
+- **TXT record**: It allows the website's administrator to insert any arbitrary text in the DNS record.
+- **SSHFP record**: It is also known as SSH Public Key Fingerprint. It has a resource record for publishing SSH public host key fingerprints in the DNS System to verify the host's authenticity.
+- **URI record**: It is also known as Uniform Resource Identifier. It can be used for publishing mappings from hostnames to URIs.
+
+
 ### HTTP versions
 The first response that a client receives on an HTTP GET request is often not the fully rendered page.  
 Instead, it contains links to additional resources needed by the requested page.  
