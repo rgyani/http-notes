@@ -75,7 +75,7 @@ However, partially due to the protocol's adoption of QUIC, HTTP/3 has lower late
 
 ![img](imgs/2022-cloudfront-quic-1.jpg)
 
-On 15 Aug, 20222, AWS Cloudfront announced support for Http/3 
+On 15 Aug, 2022, AWS Cloudfront announced support for Http/3 
 
 ### [A much better explaination](https://www.linkedin.com/pulse/http3-over-quic-its-revolutionary-saurabh-pandey/)
 
