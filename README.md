@@ -190,7 +190,7 @@ The reactor model uses a SINGLE THREAD to handle all work!
 It listens, handles the request, and then listens for the next request. The trick is everything is non-blocking.  
 That is, say the request needs to read a file from disk, instead of making a blocking OS call to read(), which is the classic way to do things, instead a non-blocking call is made, which registers a callback. When the read finishes, a message is posted to a queue, telling the process to run the callback. Instead of blocking on LISTEN to the TCP port, the same non-blocking strategy is used. The main thread then simply waits on the queue, handling each task which comes in (which may initiate further tasks). No context switches happen at all, and virtually 100% of theoretical performance is achieved, all work is useful work.
 
-**Nginx** famously brought the reactor pattern to web servers, and it has reigned as the king of HTTPDs for a good while now due to its virtually unmatched efficiency. The only downside, technically, is that this one server process better not memory leak or crash, though even this can be handled by giving it a shepherd process which monitors it and makes sure it gets restarted if anything goes wrong, or after a certain number of requests are processed, etc.
+**Nginx** famously brought the reactor pattern to web servers, and it has reigned as the king of HTTPDs for a good while now due to its virtually unmatched efficiency. The only downside, technically, is that this one server process should not leak-memory or crash, though even this can be handled by giving it a shepherd process which monitors it and makes sure it gets restarted if anything goes wrong, or after a certain number of requests are processed, etc.
 
 
 ### So how does it work
@@ -211,3 +211,137 @@ A socket file descriptor is an integer value and unique per socket. The operatin
 Now whenever the server wants to communicate with the client, it only needs to pass the socket file descriptor to the socket API, and then the OS will know which channel to use.   
 
 Hence, The server sees multiple requests as multiple open file descriptors and does I/O on each one separately.
+
+
+#### Simple Speak
+
+A server can open only one port (e.g., 8080) and still handle multiple client connections by using socket programming with the multiplexing or multi-threading approach. Here’s how it works:
+
+
+###### 1. Using a Single Port (e.g., 8080) for Multiple Clients
+When a server listens on port 8080, it does not mean that only one client can connect at a time. Instead, it follows a process:
+1. **Bind to Port 8080**: The server binds a **listening socket** to port 8080, waiting for incoming connections.
+2. **Accept Connections**: When a client requests a connection, the server accepts the connection and **creates a new socket specifically for communication with that client.**
+3. **Continue Listening**: The original socket remains open to listen for other clients while handling the first client separately.
+
+##### 2. Handling Multiple Clients
+There are different ways to handle multiple client connections:
+
+**A. Multi-Threaded Server (Separate Thread per Client)**  
+* The server spawns a new thread for each connected client.
+* Each thread runs independently, handling a single client’s requests.
+```python
+# using socket and threading
+
+import socket
+import threading
+
+def handle_client(client_socket):
+    while True:
+        try:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            client_socket.sendall(data)  # Echo back
+        except:
+            break
+    client_socket.close()
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(("0.0.0.0", 8080))
+server.listen()
+
+print("Server listening on port 8080...")
+
+while True:
+    client_socket, addr = server.accept()
+    print(f"Connection from {addr}")
+    client_thread = threading.Thread(target=handle_client, args=(client_socket,))
+    client_thread.start()
+```
+
+**B. Multiplexing (Using select() for I/O Multiplexing)**
+* The server uses select() to monitor multiple sockets in a single thread.
+* Efficient for handling a large number of connections.
+```python
+import socket
+import select
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(("0.0.0.0", 8080))
+server.listen()
+server.setblocking(False)
+
+sockets_list = [server]
+clients = {}
+
+while True:
+    read_sockets, _, _ = select.select(sockets_list, [], [])
+    
+    for s in read_sockets:
+        if s == server:
+            client_socket, client_address = server.accept()
+            sockets_list.append(client_socket)
+            clients[client_socket] = client_address
+        else:
+            try:
+                data = s.recv(1024)
+                if data:
+                    s.sendall(data)
+                else:
+                    sockets_list.remove(s)
+                    s.close()
+            except:
+                sockets_list.remove(s)
+                s.close()
+```
+
+**C. Asynchronous Server (Using asyncio in Python)**
+* Uses asynchronous programming (async and await) for handling multiple clients efficiently without blocking.
+```python
+import asyncio
+
+async def handle_client(reader, writer):
+    while True:
+        data = await reader.read(1024)
+        if not data:
+            break
+        writer.write(data)
+        await writer.drain()
+    writer.close()
+
+async def main():
+    server = await asyncio.start_server(handle_client, "0.0.0.0", 8080)
+    async with server:
+        await server.serve_forever()
+
+asyncio.run(main())
+```
+
+##### Nginx
+Nginx (pronounced "Engine-X") follows a similar principle but works as a reverse proxy and load balancer rather than a traditional server accepting raw socket connections.
+
+**How Nginx Handles Multiple Clients on One Port (e.g., 8080)**
+* Nginx Listens on a Single Port (e.g., 8080):
+    * It binds to one port and waits for HTTP/TCP connections.
+* Manages Multiple Client Connections Efficiently:
+    * Uses event-driven, asynchronous I/O (like select() or epoll() in Linux).
+    * Unlike traditional multi-threaded or process-based servers (e.g., Apache), Nginx handles thousands of clients with a single thread using a non-blocking event loop.
+* Reverse Proxy / Load Balancer:
+    * Nginx often acts as a proxy, forwarding requests to backend servers.
+
+**Example: A setup where Nginx listens on port 8080 and forwards traffic to an internal app on port 5000.**  
+If you want Nginx to listen on port 8080 and forward requests to a backend (e.g., a Python/Node.js app on localhost:5000):
+```nginx
+server {
+    listen 8080;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+* Clients connect to 8080, but Nginx proxies the request to the backend.
+* The backend sees the client's request as if it came directly from them.
