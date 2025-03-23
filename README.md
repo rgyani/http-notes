@@ -146,6 +146,11 @@ Access-Control-Max-Age gives the value in seconds for how long the response to t
 Hypertext Transfer Protocol Secure (HTTPS) is an extension of the Hypertext Transfer Protocol (HTTP.)   
 HTTPS transmits encrypted data using Transport Layer Security (TLS.) If the data is hijacked online, all the hijacker gets is binary code. 
 
+```text
+When people refer to "SSL" today, they are often actually referring to TLS.
+For example, SSL certificates are commonly used to refer to TLS certificates, even though SSL is **technically obsolete**
+```
+
 #### How is the data encrypted and decrypted?
 
 ![img](imgs/1651679057259.jpg)
