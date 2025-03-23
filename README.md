@@ -35,19 +35,26 @@ You can select any record to get all common DNS records for a domain from the fo
 - **URI record**: It is also known as Uniform Resource Identifier. It can be used for publishing mappings from hostnames to URIs.
 
 #### CNAME vs ALIAS
-CNAME records differ from Alias records in resolving domain names to reach their destination. 
+* A Record (Address Record):
+    *  This record directly links a domain name to an IP address.   
+    *    Think of it as the main phone book entry that says, "If you want to call 'example.com', dial this specific phone number (IP address)."
+    * Example:
+        * example.com. A 192.168.1.1
+        * This means when someone types "example.com," they're sent to the server at IP address 192.168.1.1.
+* CNAME Record (Canonical Name Record):
+    * This record creates an alias, pointing one domain name to another domain name. 
+    * **It does not point to an IP address**. It points to another domain name, that then has an A record that points to an IP address.   
+    * Think of it as a redirection. It says, "If you want to call 'www.example.com', that's the same as calling 'example.com'."
+    * Example:
+        * www.example.com. CNAME example.com.
+        * In this case, "www.example.com" is an alias for "example.com." When someone types "www.example.com", the DNS system then looks up the A record for "example.com" to get the IP address.
+    * This is an indirect connection, as the DNS system must then resolve the aliased domain's A record to get the IP address.
 
-Let’s say you configure a CNAME record pointing www.yourdomain.com to www.anotherdomain.com. 
-
-If someone enters www.yourdomain.com into their browser, the DNS server returns a response for www.anotherdomain.com. Their web browser then executes another DNS lookup for www.anotherdomain.com to get the IP address. 
-
-However, the process is different for Alias records. Instead of returning a response for www.anotherdomain.com, the authoritative DNS server performs the second resolution and returns only the IP address or A record. 
-
-- When you configure a CNAME record for a domain like blog.www.mywebsite.com, you can’t create any other records. Establishing another DNS record alongside a CNAME record can result in conflict, leading to erroneous results. However, this isn’t the case for Alias records, as they can coexist with other types of DNS records, such as NS records, TXT records, and SOA records in the DNS.
-
-- You can’t configure a CNAME record in the zone apex, so it’s impossible to use a CNAME record to point a root domain to another destination. But Alias records don’t have this restriction because, like A records, they return IP addresses.
-
-- But Alias Records Lose Geo-Targeting Data. Alias records may resolve a domain quicker and coexist with other DNS records but they have one drawback: They lose geo-targeting data. When a target domain name (like www.anotherdomain.com) issues queries for another domain (like www.yourdomain.com), the former’s authoritative server is responsible.
+* The Zone Apex:
+    * The "zone apex" refers to the bare domain name itself (e.g., "example.com").
+    * DNS specifications require that certain records, like SOA (Start of Authority) and NS (Name Server) records, must be present at the zone apex.
+    * CNAME records conflict with these requirements.
+        * Hence CNAME records cannot be used at the "top level" or "root" of a domain
 
 
 ### HTTP versions
