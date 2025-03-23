@@ -173,6 +173,11 @@ For example, SSL certificates are commonly used to refer to TLS certificates, ev
 | Normally the client and server establish a TCP connection via a 3-way handshake. As a result of an SYN flood attack, zombies (network of computers controller by attacker) send many SYN requests to the server, but they never return the TCP ACK to the server. |
 | This results in an exhaustion of resources on the victim server due to the accumulation of many half-open TCP connections.|
 
+### TLS Versions:
+- **TLS 1.0**: The first version of TLS (based on SSL 3.0) was released in 1999, but it has been deprecated due to various vulnerabilities.
+- **TLS 1.1**: Released in 2006, this version was also deprecated.
+- **TLS 1.2**: Released in 2008, TLS 1.2 is still widely used and supports stronger cryptographic algorithms.
+- **TLS 1.3**: Released in 2018, TLS 1.3 improves security and performance by simplifying the handshake, removing obsolete cryptographic algorithms, and ensuring forward secrecy.
 
 ### Client Certificate vs Server Certificate
 
